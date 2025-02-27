@@ -226,7 +226,7 @@ function anydent.indentexpr()
       end
     end
     -- dedent.
-    if dedented then
+    if not dedented then
       table.sort(preset.dedent_specs or {}, function(a, b)
         return (a.priority or 0) > (b.priority or 0)
       end)
