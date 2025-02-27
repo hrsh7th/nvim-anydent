@@ -26,7 +26,7 @@ return function()
         prev = { [[\<repeat\>]], '$' },
       }),
       anydent.spec.pattern({
-        prev = { [[\<function\>]], [=[\%(\w\|\.\)*]=], '(', [=[[^)]*]=], ')', '$' }
+        prev = { [[\<function\>]], [=[[^(]*]=], '(', [=[[^)]*]=], ')', '$' }
       }),
     },
     dedent_specs = {
