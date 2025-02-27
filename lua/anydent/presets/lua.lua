@@ -1,7 +1,13 @@
----@return anydent.Preset
 return function()
   local anydent = require('anydent')
+  ---@type anydent.Preset
   return {
+    indentkeys = {
+      'elseif',
+      'else',
+      'end',
+      'until',
+    },
     indent_specs = {
       anydent.spec.pattern({
         prev = { [[\<do\>]], '$' },
@@ -27,10 +33,16 @@ return function()
     },
     dedent_specs = {
       anydent.spec.pattern({
-        curr = { [[\<end\>]], '$' },
+        prev = { '^', [[\<else\>]] },
       }),
       anydent.spec.pattern({
-        curr = { [[\<until\>]], '$' },
+        prev = { '^', [[\<elseif\>]] },
+      }),
+      anydent.spec.pattern({
+        curr = { '^', [[\<end\>]] },
+      }),
+      anydent.spec.pattern({
+        curr = { '^', [[\<until\>]] },
       }),
     },
   }

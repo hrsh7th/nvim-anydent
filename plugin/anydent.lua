@@ -1,10 +1,11 @@
 local anydent = require('anydent')
 
-anydent.register_preset('*', require('anydent.presets.common')())
-anydent.register_preset('lua', require('anydent.presets.lua')())
+anydent.register_presets('*', {
+  require('anydent.presets.doc-comment')(),
+  require('anydent.presets.common')(),
+})
+anydent.register_presets('lua', {
+  require('anydent.presets.common')(),
+  require('anydent.presets.lua')(),
+})
 
-vim.g.anydent = {
-  indentexpr = function()
-    return anydent.indentexpr()
-  end
-}

@@ -1,8 +1,14 @@
----@return anydent.Preset
 return function()
   local anydent = require('anydent')
+  ---@type anydent.Preset
   return {
     priority = -1,
+    indentkeys = {
+      '}',
+      ']',
+      '>',
+      ')',
+    },
     indent_specs = {
       anydent.spec.pattern({ prev = { [=[\V{\m]=], '$' } }),
       anydent.spec.pattern({ prev = { [=[\V[\m]=], '$' } }),
