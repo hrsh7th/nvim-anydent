@@ -10,24 +10,23 @@
 ---@field line string line content
 ---@field indent_count integer indent level
 
----@class anydent.DedentSpec
----@field priority? integer
----@field resolve fun(ctx: anydent.Context): boolean
-
----@class anydent.IndentSpec
+---@class anydent.Spec
+---@field name string
 ---@field priority? integer
 ---@field resolve fun(ctx: anydent.Context): boolean
 
 ---@class anydent.ManualSpec
+---@field name string
 ---@field priority? integer
 ---@field resolve fun(ctx: anydent.Context): boolean
 ---@field detect fun(ctx: anydent.Context): integer
 
 ---@class anydent.Preset
+---@field name string
 ---@field priority? integer
 ---@field indentkeys? string[]
----@field dedent_specs? anydent.DedentSpec[]
----@field indent_specs? anydent.IndentSpec[]
+---@field dedent_specs? anydent.Spec[]
+---@field indent_specs? anydent.Spec[]
 ---@field manual_specs? anydent.ManualSpec[]
 
 ---@class anydent.Config
@@ -95,6 +94,14 @@ local function get_next_nonblank_row(row)
   return vim.fn.line('$')
 end
 
+---Debug print.
+---@vararg any
+local function debug_print(...)
+  if vim.g.anydent_debug then
+    vim.print(...)
+  end
+end
+
 local get_regex
 do
   local cache = {}
@@ -118,12 +125,15 @@ anydent.spec = {}
 
 ---Define a pattern spec.
 ---@param option { prev?: string|string[], curr?: string|string[], next?: string|string[] }
+---@return anydent.Spec
 function anydent.spec.pattern(option)
   if not option.prev and not option.curr and not option.next then
     error('at least one of prev, curr, next must be specified')
   end
 
+  ---@type anydent.Spec
   return {
+    name = ('pattern: prev=`%s`, curr=`%s`, next=`%s`'):format(option.prev or '', option.curr or '', option.next or ''),
     resolve = function(row_ctx)
       if option.prev then
         if not get_regex(option.prev):match_str(row_ctx.prev.line) then
@@ -202,8 +212,13 @@ function anydent.indentexpr()
 
   local presets = anydent.get_presets(0)
 
+  debug_print('>>> detection: ' .. ctx.curr.line)
   local prev_indent_count = ctx.prev.indent_count
+
+  local dedented = false
+  local indented = false
   for _, preset in ipairs(presets) do
+    debug_print(('  preset: %s'):format(preset.name))
     -- manual.
     for _, spec in ipairs(preset.manual_specs or {}) do
       if spec.resolve(ctx) then
@@ -211,21 +226,29 @@ function anydent.indentexpr()
       end
     end
     -- dedent.
-    table.sort(preset.dedent_specs or {}, function(a, b)
-      return (a.priority or 0) > (b.priority or 0)
-    end)
-    for _, spec in ipairs(preset.dedent_specs or {}) do
-      if spec.resolve(ctx) then
-        prev_indent_count = prev_indent_count - ctx.shiftwidth
+    if dedented then
+      table.sort(preset.dedent_specs or {}, function(a, b)
+        return (a.priority or 0) > (b.priority or 0)
+      end)
+      for _, spec in ipairs(preset.dedent_specs or {}) do
+        if spec.resolve(ctx) then
+          debug_print(('    dedent: [%s] %s'):format(preset.name, spec.name))
+          prev_indent_count = prev_indent_count - ctx.shiftwidth
+          dedented = true
+        end
       end
     end
     -- indent.
-    table.sort(preset.indent_specs or {}, function(a, b)
-      return (a.priority or 0) > (b.priority or 0)
-    end)
-    for _, spec in ipairs(preset.indent_specs or {}) do
-      if spec.resolve(ctx) then
-        prev_indent_count = prev_indent_count + ctx.shiftwidth
+    if not indented then
+      table.sort(preset.indent_specs or {}, function(a, b)
+        return (a.priority or 0) > (b.priority or 0)
+      end)
+      for _, spec in ipairs(preset.indent_specs or {}) do
+        if spec.resolve(ctx) then
+          debug_print(('    indent: [%s] %s'):format(preset.name, spec.name))
+          prev_indent_count = prev_indent_count + ctx.shiftwidth
+          indented = true
+        end
       end
     end
   end

@@ -2,6 +2,7 @@ return function()
   local anydent = require('anydent')
   ---@type anydent.Preset
   return {
+    name = 'common',
     priority = -1,
     indentkeys = {
       '}',

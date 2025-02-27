@@ -2,6 +2,7 @@ return function()
   local anydent = require('anydent')
   ---@type anydent.Preset
   return {
+    name = 'lua',
     indentkeys = {
       'elseif',
       'else',
@@ -23,9 +24,6 @@ return function()
       }),
       anydent.spec.pattern({
         prev = { [[\<repeat\>]], '$' },
-      }),
-      anydent.spec.pattern({
-        prev = { [[\<function\>]], '(', [=[[^)]*]=], ')', '$' }
       }),
       anydent.spec.pattern({
         prev = { [[\<function\>]], [=[\%(\w\|\.\)*]=], '(', [=[[^)]*]=], ')', '$' }

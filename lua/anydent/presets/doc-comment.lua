@@ -2,12 +2,14 @@ return function()
   local anydent = require('anydent')
   ---@type anydent.Preset
   return {
+    name = 'doc-comment',
     priority = 1000,
     indentkeys = {
       '*'
     },
     manual_specs = {
       {
+        name = 'doc-comment',
         resolve = function(ctx)
           for row = ctx.prev.row, 1, -1 do
             local text = vim.api.nvim_buf_get_lines(0, row - 1, row, false)[1] or ''
