@@ -15,7 +15,8 @@ return function()
             local text = vim.api.nvim_buf_get_lines(0, row - 1, row, false)[1] or ''
             local doc_start = vim.regex([=[^\s*/\*\*$]=]):match_str(text) ~= nil
             local doc_middle = vim.regex([=[^\s*\*]=]):match_str(text) ~= nil
-            if not doc_start and not doc_middle then
+            local doc_end = vim.regex([=[^\s*\*/$]=]):match_str(text) ~= nil
+            if doc_end or (not doc_start and not doc_middle) then
               break
             end
             if doc_start then

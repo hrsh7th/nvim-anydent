@@ -35,6 +35,7 @@
 local anydent = {}
 
 local P = {
+  ns = vim.api.nvim_create_namespace('anydent'),
   config = {
     filetype = {}
   },
@@ -252,32 +253,47 @@ function anydent.indentexpr()
       end
     end
   end
-  return prev_indent_count
+
+  return math.floor(prev_indent_count / #ctx.one_indent) * #ctx.one_indent
 end
 
 ---Attach anydent to the buffer.
 function anydent.attach()
   local buf = vim.api.nvim_get_current_buf()
-  -- indentexpr.
-  do
-    vim.b[buf].anydent = {
-      indentexpr = anydent.indentexpr,
-    }
-    vim.bo[buf].indentexpr = 'b:anydent.indentexpr()'
-  end
-
-  -- indentkeys
-  do
-    local indentkeys_map = {} --[[@type table<string, boolean>]]
-    for _, preset in ipairs(anydent.get_presets(0)) do
-      for _, key in ipairs(preset.indentkeys or {}) do
-        indentkeys_map[key] = true
-      end
+  vim.schedule(function()
+    -- indentexpr.
+    do
+      vim.b[buf].anydent = {
+        indentexpr = anydent.indentexpr,
+      }
+      vim.bo[buf].indentexpr = 'b:anydent.indentexpr()'
     end
-    vim.bo[buf].indentkeys = vim.bo[buf].indentkeys .. ',' .. vim.iter(vim.tbl_keys(indentkeys_map)):map(function(key)
-      return ('=%s'):format(vim.fn.escape(key, ', \t\\*'))
-    end):join(',')
-  end
+
+    -- indentkeys
+    do
+      local indentkeys_map = {} --[[@type table<string, boolean>]]
+      for _, preset in ipairs(anydent.get_presets(0)) do
+        for _, key in ipairs(preset.indentkeys or {}) do
+          indentkeys_map[key] = true
+        end
+      end
+      vim.bo[buf].indentkeys = vim.bo[buf].indentkeys .. ',' .. vim.iter(vim.tbl_keys(indentkeys_map)):map(function(key)
+        return ('0=%s'):format(vim.fn.escape(key, ', \t\\*'))
+      end):join(',')
+    end
+
+    vim.api.nvim_create_autocmd('OptionSet', {
+      group = P.ns,
+      pattern = 'indentexpr',
+      callback = function()
+        if buf == vim.api.nvim_get_current_buf() then
+          if vim.bo[buf].indentexpr ~= 'b:anydent.indentexpr()' then
+            vim.bo[buf].indentexpr = 'b:anydent.indentexpr()'
+          end
+        end
+      end
+    })
+  end)
 end
 
 return anydent
