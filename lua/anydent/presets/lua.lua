@@ -10,38 +10,18 @@ return function()
       'until',
     },
     indent_specs = {
-      anydent.spec.pattern({
-        prev = { [[\<do\>]], '$' },
-      }),
-      anydent.spec.pattern({
-        prev = { [[\<then\>]], '$' },
-      }),
-      anydent.spec.pattern({
-        prev = { [[\<else\>]], '$' },
-      }),
-      anydent.spec.pattern({
-        prev = { [[\<elseif\>]], '$' },
-      }),
-      anydent.spec.pattern({
-        prev = { [[\<repeat\>]], '$' },
-      }),
-      anydent.spec.pattern({
-        prev = { [[\<function\>]], [=[[^(]*]=], '(', [=[[^)]*]=], ')', '$' }
-      }),
+      anydent.spec.pattern({ prev = { [[\<do\>]], '$' } }),
+      anydent.spec.pattern({ prev = { [[\<then\>]], '$' } }),
+      anydent.spec.pattern({ prev = { [[\<else\>]], '$' } }),
+      anydent.spec.pattern({ prev = { [[\<elseif\>]], '$' } }),
+      anydent.spec.pattern({ prev = { [[\<repeat\>]], '$' } }),
+      anydent.spec.pattern({ prev = { [[\<function\>]], [=[[^(]*]=], '(', [=[[^)]*]=], ')', '$' } }),
     },
     dedent_specs = {
-      anydent.spec.pattern({
-        prev = { '^', [[\<else\>]] },
-      }),
-      anydent.spec.pattern({
-        prev = { '^', [[\<elseif\>]] },
-      }),
-      anydent.spec.pattern({
-        curr = { '^', [[\<end\>]] },
-      }),
-      anydent.spec.pattern({
-        curr = { '^', [[\<until\>]] },
-      }),
+      anydent.spec.pattern({ curr = { '^', [[\<else\>]] } }),
+      anydent.spec.pattern({ curr = { '^', [[\<elseif\>]] } }),
+      anydent.spec.pattern({ curr = { '^', [[\<end\>]] } }),
+      anydent.spec.pattern({ curr = { '^', [[\<until\>]] } }),
     },
   }
 end
