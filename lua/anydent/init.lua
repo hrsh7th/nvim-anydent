@@ -39,6 +39,10 @@ local P = {
   config = {
     filetype = {}
   },
+
+  au = vim.api.nvim_create_augroup('anydent', {
+    clear = false,
+  }),
 }
 
 ---Get the indent string of the current buffer.
@@ -287,7 +291,7 @@ function anydent.attach()
     end
 
     vim.api.nvim_create_autocmd('OptionSet', {
-      group = P.ns,
+      group = P.au,
       pattern = 'indentexpr',
       callback = function()
         if buf == vim.api.nvim_get_current_buf() then
